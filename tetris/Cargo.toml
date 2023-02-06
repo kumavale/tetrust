@@ -1,0 +1,11 @@
+[package]
+name = "tetris"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+getch-rs = "0.1"
+rand = { version = "0.8.5", features = ["min_const_gen"] }
+clap = { version = "4.1.4", features = ["derive"] }
