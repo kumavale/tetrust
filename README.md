@@ -1,8 +1,10 @@
-# Rustで作るテトリス入門
+# Rustで作るテトリス風ゲーム入門
 
-[![](./images/book_cover.png?sanitize=true)](https://zenn.dev/kumavale/books/30efec2e1d3428)
+<a href="https://zenn.dev/kumavale/books/30efec2e1d3428">
+    <img width="250px" src="./images/book_cover.png?sanitize=true">
+</a>
 
-『[Rustで作るテトリス入門](https://zenn.dev/kumavale/books/30efec2e1d3428)』のソースコードです。
+『[Rustで作るテトリス風ゲーム入門](https://zenn.dev/kumavale/books/30efec2e1d3428)』のソースコードです。
 
 - [Chapter05 シンプルなテトリス](./chapter05)
 - [Chapter06 リファクタリング](./chapter06)
