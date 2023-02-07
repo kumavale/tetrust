@@ -3,6 +3,7 @@ use std::{thread, time};
 use getch_rs::{Getch, Key};
 use crate::game::*;
 use crate::nn::eval;
+use crate::ga::GenoSeq;
 
 // 通常プレイ
 pub fn normal() -> ! {
@@ -117,9 +118,9 @@ pub fn normal() -> ! {
 }
 
 // オートプレイ
-pub fn auto() -> ! {
+pub fn auto(weight: GenoSeq) -> ! {
     // 自動化処理
-    let _ = thread::spawn(|| {
+    let _ = thread::spawn(move || {
         let mut game = Game::new();
         // 画面クリア
         println!("\x1b[2J\x1b[H\x1b[?25l");
@@ -130,7 +131,7 @@ pub fn auto() -> ! {
 
         loop {
             // 指定した遺伝子で評価後のエリート個体を取得
-            let elite = eval(&game, &[100, 1, 10, 100]);
+            let elite = eval(&game, &weight);
             game = elite;
             // エリート個体のテトリミノを落下
             if landing(&mut game).is_err() {
