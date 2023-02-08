@@ -2,7 +2,7 @@ mod mino;
 mod game;
 mod block;
 mod play;
-mod nn;
+mod ai;
 mod ga;
 
 use clap::{Parser, ValueEnum};

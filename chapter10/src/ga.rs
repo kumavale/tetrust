@@ -1,7 +1,7 @@
 use std::ops::Index;
 use std::thread;
 use crate::game::*;
-use crate::nn::eval;
+use crate::ai::eval;
 use getch_rs::{Getch, Key};
 use rand::{
     distributions::{Distribution, Standard},
