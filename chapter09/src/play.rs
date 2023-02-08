@@ -2,7 +2,7 @@ use std::sync::{Arc, Mutex};
 use std::{thread, time};
 use getch_rs::{Getch, Key};
 use crate::game::*;
-use crate::nn::eval;
+use crate::ai::eval;
 
 // 通常プレイ
 pub fn normal() -> ! {
