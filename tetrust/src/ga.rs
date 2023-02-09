@@ -70,31 +70,28 @@ pub fn learning() -> ! {
         // 世代を初期生成
         let mut inds = rand::random::<[Individual; POPULATION]>();
         for gen in 1..=GENERATION_MAX {
-            let mut children = vec![];
             println!("{gen}世代目:");
-            for i in 0..POPULATION {
-                // 新しいスレッドを起動
-                children.push(thread::spawn(move || {
-                    let mut game = Game::new();
-                    // nライン消したら終了
-                    while game.line < LINE_COUNT_MAX {
-                        // 指定した遺伝子で評価後のエリート個体を取得
-                        let elite = eval(&game, &inds[i].geno);
-                        game = elite;
-                        // エリート個体のテトリミノを落下
-                        if landing(&mut game).is_err() {
-                            break;
+            thread::scope(|s| {
+                for (i, ind) in inds.iter_mut().enumerate() {
+                    // 新しいスレッドを起動
+                    s.spawn(move || {
+                        let mut game = Game::new();
+                        // nライン消したら終了
+                        while game.line < LINE_COUNT_MAX {
+                            // 指定した遺伝子で評価後のエリート個体を取得
+                            let elite = eval(&game, &ind.geno);
+                            game = elite;
+                            // エリート個体のテトリミノを落下
+                            if landing(&mut game).is_err() {
+                                break;
+                            }
                         }
-                    }
-                    // 個体の最終スコアを記録
-                    inds[i].score = game.score;
-                    println!("{i}: {:?} => {}", inds[i].geno, game.score);
-                }));
-            }
-            for child in children {
-                // 子スレッドが終了するのを待つ
-                let _ = child.join();
-            }
+                        // 個体の最終スコアを記録
+                        ind.score = game.score;
+                        println!("{i}: {:?} => {}", ind.geno, game.score);
+                    });
+                }
+            });
             // 次世代の生成
             let next_genos = gen_next_generation(&inds);
             // 世代交代
