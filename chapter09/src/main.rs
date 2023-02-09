@@ -1,20 +1,19 @@
-mod mino;
-mod game;
 mod block;
+mod game;
 mod play;
 mod ai;
 
-use clap::{Parser, ValueEnum};
+use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
 struct Cli {
     /// What mode to run the program in
-    #[arg(value_enum, default_value_t = Mode::Normal)]
-    mode: Mode,
+    #[command(subcommand)]
+    mode: Option<Mode>,
 }
 
-#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
+#[derive(Subcommand)]
 enum Mode {
     /// Run normal play
     Normal,
@@ -26,11 +25,12 @@ fn main() {
     // コマンドライン引数の解析
     let cli = Cli::parse();
     match cli.mode {
-        Mode::Normal => {
+        None |
+        Some(Mode::Normal) => {
             // 通常プレイ
             play::normal();
         }
-        Mode::Auto => {
+        Some(Mode::Auto) => {
             // オートプレイ
             play::auto();
         }

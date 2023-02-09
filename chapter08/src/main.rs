@@ -1,6 +1,5 @@
-mod mino;
-mod game;
 mod block;
+mod game;
 
 use std::sync::{Arc, Mutex};
 use std::{thread, time};
@@ -12,8 +11,6 @@ fn main() {
 
     // 画面クリア
     println!("\x1b[2J\x1b[H\x1b[?25l");
-    // テトリミノを初期生成
-    spawn_mino(&mut game.lock().unwrap()).ok();
     // フィールドを描画
     draw(&game.lock().unwrap());
 
@@ -34,13 +31,13 @@ fn main() {
                     x: game.pos.x,
                     y: game.pos.y + 1,
                 };
-                if !is_collision(&game.field, &new_pos, &game.mino) {
+                if !is_collision(&game.field, &new_pos, &game.block) {
                     // posの座標を更新
                     game.pos = new_pos;
                 } else {
-                    // テトリミノ落下後の処理
+                    // ブロック落下後の処理
                     if landing(&mut game).is_err() {
-                        // テトリミノを生成できないならゲームオーバー
+                        // ブロックを生成できないならゲームオーバー
                         gameover(&game);
                     }
                 }
@@ -61,7 +58,7 @@ fn main() {
                     x: game.pos.x.checked_sub(1).unwrap_or(game.pos.x),
                     y: game.pos.y,
                 };
-                move_mino(&mut game, new_pos);
+                move_block(&mut game, new_pos);
                 draw(&game);
             }
             Ok(Key::Down) => {
@@ -70,7 +67,7 @@ fn main() {
                     x: game.pos.x,
                     y: game.pos.y + 1,
                 };
-                move_mino(&mut game, new_pos);
+                move_block(&mut game, new_pos);
                 draw(&game);
             }
             Ok(Key::Right) => {
@@ -79,17 +76,7 @@ fn main() {
                     x: game.pos.x + 1,
                     y: game.pos.y,
                 };
-                move_mino(&mut game, new_pos);
-                draw(&game);
-            }
-            Ok(Key::Up) => {
-                // ハードドロップ
-                let mut game = game.lock().unwrap();
-                hard_drop(&mut game);
-                if landing(&mut game).is_err() {
-                    // テトリミノを生成できないならゲームオーバー
-                    gameover(&game);
-                }
+                move_block(&mut game, new_pos);
                 draw(&game);
             }
             Ok(Key::Char('z')) => {
@@ -102,6 +89,16 @@ fn main() {
                 // 右回転
                 let mut game = game.lock().unwrap();
                 rotate_right(&mut game);
+                draw(&game);
+            }
+            Ok(Key::Up) => {
+                // ハードドロップ
+                let mut game = game.lock().unwrap();
+                hard_drop(&mut game);
+                if landing(&mut game).is_err() {
+                    // ブロックを生成できないならゲームオーバー
+                    gameover(&game);
+                }
                 draw(&game);
             }
             Ok(Key::Char(' ')) => {

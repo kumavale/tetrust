@@ -1,4 +1,4 @@
-mod mino;
+mod block;
 mod game;
 
 use std::sync::{Arc, Mutex};
@@ -27,18 +27,18 @@ fn main() {
                     x: game.pos.x,
                     y: game.pos.y + 1,
                 };
-                if !is_collision(&game.field, &new_pos, game.mino) {
+                if !is_collision(&game.field, &new_pos, game.block) {
                     // posの座標を更新
                     game.pos = new_pos;
                 } else {
-                    // テトリミノをフィールドに固定
-                    fix_mino(&mut game);
+                    // ブロックをフィールドに固定
+                    fix_block(&mut game);
                     // ラインの削除処理
                     erase_line(&mut game.field);
                     // posの座標を初期値へ
-                    game.pos = Position { x: 4, y: 0 };
-                    // テトリミノをランダム生成
-                    game.mino = rand::random();
+                    game.pos = Position::init();
+                    // ブロックをランダム生成
+                    game.block = rand::random();
                 }
                 // フィールドを描画
                 draw(&game);
@@ -57,7 +57,7 @@ fn main() {
                     x: game.pos.x.checked_sub(1).unwrap_or(game.pos.x),
                     y: game.pos.y,
                 };
-                move_mino(&mut game, new_pos);
+                move_block(&mut game, new_pos);
                 draw(&game);
             }
             Ok(Key::Down) => {
@@ -66,7 +66,7 @@ fn main() {
                     x: game.pos.x,
                     y: game.pos.y + 1,
                 };
-                move_mino(&mut game, new_pos);
+                move_block(&mut game, new_pos);
                 draw(&game);
             }
             Ok(Key::Right) => {
@@ -75,7 +75,7 @@ fn main() {
                     x: game.pos.x + 1,
                     y: game.pos.y,
                 };
-                move_mino(&mut game, new_pos);
+                move_block(&mut game, new_pos);
                 draw(&game);
             }
             Ok(Key::Char('q')) => {

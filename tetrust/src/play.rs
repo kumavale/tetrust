@@ -3,7 +3,6 @@ use std::{thread, time};
 use getch_rs::{Getch, Key};
 use crate::game::*;
 use crate::ai::eval;
-use crate::ga::GenoSeq;
 
 // 通常プレイ
 pub fn normal() -> ! {
@@ -11,8 +10,6 @@ pub fn normal() -> ! {
 
     // 画面クリア
     println!("\x1b[2J\x1b[H\x1b[?25l");
-    // テトリミノを初期生成
-    spawn_mino(&mut game.lock().unwrap()).ok();
     // フィールドを描画
     draw(&game.lock().unwrap());
 
@@ -33,13 +30,13 @@ pub fn normal() -> ! {
                     x: game.pos.x,
                     y: game.pos.y + 1,
                 };
-                if !is_collision(&game.field, &new_pos, &game.mino) {
+                if !is_collision(&game.field, &new_pos, &game.block) {
                     // posの座標を更新
                     game.pos = new_pos;
                 } else {
-                    // テトリミノ落下後の処理
+                    // ブロック落下後の処理
                     if landing(&mut game).is_err() {
-                        // テトリミノを生成できないならゲームオーバー
+                        // ブロックを生成できないならゲームオーバー
                         gameover(&game);
                     }
                 }
@@ -60,7 +57,7 @@ pub fn normal() -> ! {
                     x: game.pos.x.checked_sub(1).unwrap_or(game.pos.x),
                     y: game.pos.y,
                 };
-                move_mino(&mut game, new_pos);
+                move_block(&mut game, new_pos);
                 draw(&game);
             }
             Ok(Key::Down) => {
@@ -69,7 +66,7 @@ pub fn normal() -> ! {
                     x: game.pos.x,
                     y: game.pos.y + 1,
                 };
-                move_mino(&mut game, new_pos);
+                move_block(&mut game, new_pos);
                 draw(&game);
             }
             Ok(Key::Right) => {
@@ -78,7 +75,7 @@ pub fn normal() -> ! {
                     x: game.pos.x + 1,
                     y: game.pos.y,
                 };
-                move_mino(&mut game, new_pos);
+                move_block(&mut game, new_pos);
                 draw(&game);
             }
             Ok(Key::Up) => {
@@ -86,7 +83,7 @@ pub fn normal() -> ! {
                 let mut game = game.lock().unwrap();
                 hard_drop(&mut game);
                 if landing(&mut game).is_err() {
-                    // テトリミノを生成できないならゲームオーバー
+                    // ブロックを生成できないならゲームオーバー
                     gameover(&game);
                 }
                 draw(&game);
@@ -118,24 +115,22 @@ pub fn normal() -> ! {
 }
 
 // オートプレイ
-pub fn auto(weight: GenoSeq) -> ! {
+pub fn auto() -> ! {
     // 自動化処理
-    let _ = thread::spawn(move || {
+    let _ = thread::spawn(|| {
         let mut game = Game::new();
         // 画面クリア
         println!("\x1b[2J\x1b[H\x1b[?25l");
-        // テトリミノを初期生成
-        spawn_mino(&mut game).ok();
         // フィールドを描画
         draw(&game);
 
         loop {
             // 指定した遺伝子で評価後のエリート個体を取得
-            let elite = eval(&game, &weight);
+            let elite = eval(&game, &[100, 1, 10, 100]);
             game = elite;
-            // エリート個体のテトリミノを落下
+            // エリート個体のブロックを落下
             if landing(&mut game).is_err() {
-                // テトリミノを生成できないならゲームオーバー
+                // ブロックを生成できないならゲームオーバー
                 gameover(&game);
             }
             draw(&game);

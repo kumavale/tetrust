@@ -3,7 +3,7 @@ use crate::block::block_kind;
 
 // 評価して、一番優秀な個体を返す
 pub fn eval(game: &Game) -> Game {
-    // エリートテトリミノ (Game, score)
+    // エリートブロック (Game, score)
     let mut elite = (game.clone(), 0f64);
 
     // ホールド有無
@@ -20,7 +20,7 @@ pub fn eval(game: &Game) -> Game {
                 rotate_right(&mut game);
             }
             // 全横移動
-            for dx in -4..=4 {
+            for dx in -4..=5 {
                 let mut game = game.clone();
                 // 移動処理
                 let new_pos = Position {
@@ -28,11 +28,11 @@ pub fn eval(game: &Game) -> Game {
                         (..=0) => 0,
                         x => x as usize,
                     },
-                    y: game.pos.y + 1,
+                    y: game.pos.y,
                 };
-                move_mino(&mut game, new_pos);
+                move_block(&mut game, new_pos);
                 hard_drop(&mut game);
-                fix_mino(&mut game);
+                fix_block(&mut game);
 
                 // インプット情報の取得
                 let line        = erase_line_count(&game.field);  // 消せるライン数
@@ -54,7 +54,7 @@ pub fn eval(game: &Game) -> Game {
 
                 // インプット情報を評価
                 let score = line + height_max + height_diff + dead_space;
-                if  elite.1 < score {
+                if elite.1 < score {
                     // 一番良い個体を記録
                     elite.0 = game;
                     elite.1 = score;
@@ -72,12 +72,12 @@ fn normalization(value: f64, min: f64, max: f64) -> f64 {
 
 // 消せるライン数を返す
 #[allow(clippy::needless_range_loop)]
-fn erase_line_count(field: &FieldSize) -> usize {
+fn erase_line_count(field: &Field) -> usize {
     let mut count = 0;
     for y in 1..FIELD_HEIGHT-2 {
         let mut can_erase = true;
-        for x in 1..FIELD_WIDTH-1 {
-            if field[y][x] == 0 {
+        for x in 2..FIELD_WIDTH-2 {
+            if field[y][x] == block_kind::NONE {
                 can_erase = false;
                 break;
             }
@@ -93,7 +93,7 @@ fn erase_line_count(field: &FieldSize) -> usize {
 // ブロックが何もないときは「0」
 // ブロックが積みあがっていくにつれ、数値は増える
 #[allow(clippy::needless_range_loop)]
-fn field_height_max(field: &FieldSize) -> usize {
+fn field_height_max(field: &Field) -> usize {
     for y in 1..FIELD_HEIGHT-2 {
         for x in 2..FIELD_WIDTH-2 {
             if field[y][x] != block_kind::NONE {
@@ -106,7 +106,7 @@ fn field_height_max(field: &FieldSize) -> usize {
 
 // フィールドの高低差の合計を返す
 #[allow(clippy::needless_range_loop)]
-pub fn diff_in_height(field: &FieldSize) -> usize {
+pub fn diff_in_height(field: &Field) -> usize {
     let mut diff = 0;
     let mut top = [0; FIELD_WIDTH-4];
     // 各列の一番上の高さを求める
@@ -126,7 +126,7 @@ pub fn diff_in_height(field: &FieldSize) -> usize {
 }
 
 // デッドスペース数を返す
-pub fn dead_space_count(field: &FieldSize) -> usize {
+pub fn dead_space_count(field: &Field) -> usize {
     let mut count = 0;
     for y in (1..FIELD_HEIGHT-2).rev() {
         for x in 2..FIELD_WIDTH-2 {

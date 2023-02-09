@@ -48,7 +48,7 @@ impl Index<GenomeKind> for GenoSeq {
 }
 
 // 個体
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 struct Individual {
     geno: GenoSeq,
     score: usize,
@@ -64,7 +64,6 @@ impl Distribution<Individual> for Standard {
 }
 
 // 学習
-#[allow(clippy::needless_range_loop)]
 pub fn learning() -> ! {
     let _ = thread::spawn(|| {
         // 世代を初期生成
@@ -81,7 +80,7 @@ pub fn learning() -> ! {
                             // 指定した遺伝子で評価後のエリート個体を取得
                             let elite = eval(&game, &ind.geno);
                             game = elite;
-                            // エリート個体のテトリミノを落下
+                            // エリート個体のブロックを落下
                             if landing(&mut game).is_err() {
                                 break;
                             }
