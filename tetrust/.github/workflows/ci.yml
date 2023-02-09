@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix: { dir: ['chapter05', 'chapter06', 'chapter07', 'chapter08', 'chapter09', 'chapter10', 'tetrust'] }
+
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ${{ matrix.dir }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build
+        run: cargo build --verbose
+
+      - name: Tests
+        run: cargo test
+
+      - name: Clippy
+        run: cargo clippy
