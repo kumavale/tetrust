@@ -6,7 +6,7 @@
 
 『[Rustで作るテトリス風ゲーム入門](https://zenn.dev/kumavale/books/30efec2e1d3428)』のソースコードです。
 
-- [Chapter05 シンプルなテトリス](./chapter05)
+- [Chapter05 シンプルな落ちものパズルゲーム](./chapter05)
 - [Chapter06 リファクタリング](./chapter06)
 - [Chapter07 機能追加（前編）](./chapter07)
 - [Chapter08 機能追加（後編）](./chapter08)
@@ -15,7 +15,7 @@
 
 ## サンプル
 
-### シンプルなテトリス (5章)
+### シンプルな落ちものパズルゲーム (5章)
 
 ![](./images/chapter05.gif?sanitize=true)
 
