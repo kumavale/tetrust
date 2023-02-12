@@ -109,7 +109,7 @@ pub fn draw(Game { field, pos, block }: &Game) {
     }
 }
 
-// ブロックがフィールドに衝突する場合は`ture`を返す
+// ブロックがフィールドに衝突する場合は`true`を返す
 pub fn is_collision(field: &Field, pos: &Position, block: &BlockShape) -> bool {
     for y in 0..4 {
         for x in 0..4 {
