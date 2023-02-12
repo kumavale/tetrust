@@ -122,7 +122,7 @@ fn draw(field: &Field, pos: &Position, block: BlockKind) {
     }
 }
 
-// ブロックがフィールドに衝突する場合は`ture`を返す
+// ブロックがフィールドに衝突する場合は`true`を返す
 fn is_collision(field: &Field, pos: &Position, block: BlockKind) -> bool {
     for y in 0..4 {
         for x in 0..4 {
