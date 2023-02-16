@@ -100,7 +100,7 @@ pub fn is_collision(field: &Field, pos: &Position, block: BlockKind) -> bool {
 }
 
 // ブロックをフィールドに固定する
-pub fn fix_block(Game {field, pos, block }: &mut Game) {
+pub fn fix_block(Game { field, pos, block }: &mut Game) {
     for y in 0..4 {
         for x in 0..4 {
             if BLOCKS[*block as usize][y][x] == 1 {
