@@ -8,7 +8,6 @@ use crate::ga::GenoSeq;
 // 通常プレイ
 pub fn normal() {
     let game = Arc::new(Mutex::new(Game::new()));
-    let gameloop = Arc::new(Mutex::new(true));
 
     // 画面クリア
     println!("\x1b[2J\x1b[H\x1b[?25l");
@@ -18,9 +17,8 @@ pub fn normal() {
     // 自然落下処理
     {
         let game = Arc::clone(&game);
-        let gameloop = Arc::clone(&gameloop);
         let _ = thread::spawn(move || {
-            while *gameloop.lock().unwrap() {
+            loop {
                 // nミリ秒間スリーブする
                 let sleep_msec = match 1000u64.saturating_sub((game.lock().unwrap().line as u64 / 10) * 100) {
                     0 => 100,
@@ -89,6 +87,8 @@ pub fn normal() {
                 if landing(&mut game).is_err() {
                     // ブロックを生成できないならゲームオーバー
                     gameover(&game);
+                    quit();
+                    break;
                 }
                 draw(&game);
             }
@@ -111,7 +111,6 @@ pub fn normal() {
                 draw(&game);
             }
             Ok(Key::Char('q')) => {
-                *gameloop.lock().unwrap() = false;
                 quit();
                 break;
             }
@@ -122,39 +121,33 @@ pub fn normal() {
 
 // オートプレイ
 pub fn auto(weight: GenoSeq) {
-    let gameloop = Arc::new(Mutex::new(true));
-
     // 自動化処理
-    {
-        let gameloop = Arc::clone(&gameloop);
-        let _ = thread::spawn(move || {
-            let mut game = Game::new();
-            // 画面クリア
-            println!("\x1b[2J\x1b[H\x1b[?25l");
-            // フィールドを描画
-            draw(&game);
+    let _ = thread::spawn(move || {
+        let mut game = Game::new();
+        // 画面クリア
+        println!("\x1b[2J\x1b[H\x1b[?25l");
+        // フィールドを描画
+        draw(&game);
 
-            while *gameloop.lock().unwrap() {
-                // 指定した遺伝子で評価後のエリート個体を取得
-                let elite = eval(&game, &weight);
-                game = elite;
-                // エリート個体のブロックを落下
-                if landing(&mut game).is_err() {
-                    // ブロックを生成できないならゲームオーバー
-                    gameover(&game);
-                    break;
-                }
-                draw(&game);
+        loop {
+            // 指定した遺伝子で評価後のエリート個体を取得
+            let elite = eval(&game, &weight);
+            game = elite;
+            // エリート個体のブロックを落下
+            if landing(&mut game).is_err() {
+                // ブロックを生成できないならゲームオーバー
+                gameover(&game);
+                break;
             }
-        });
-    }
+            draw(&game);
+        }
+    });
 
     // キー入力処理
     let g = Getch::new();
     loop {
         // `q`キーで終了
         if let Ok(Key::Char('q')) = g.getch() {
-            *gameloop.lock().unwrap() = false;
             quit();
             break;
         }
