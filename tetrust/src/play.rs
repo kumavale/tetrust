@@ -6,7 +6,7 @@ use crate::ai::eval;
 use crate::ga::GenoSeq;
 
 // 通常プレイ
-pub fn normal() -> ! {
+pub fn normal() {
     let game = Arc::new(Mutex::new(Game::new()));
 
     // 画面クリア
@@ -39,6 +39,7 @@ pub fn normal() -> ! {
                     if landing(&mut game).is_err() {
                         // ブロックを生成できないならゲームオーバー
                         gameover(&game);
+                        break;
                     }
                 }
                 // フィールドを描画
@@ -86,6 +87,7 @@ pub fn normal() -> ! {
                 if landing(&mut game).is_err() {
                     // ブロックを生成できないならゲームオーバー
                     gameover(&game);
+                    break;
                 }
                 draw(&game);
             }
@@ -108,15 +110,18 @@ pub fn normal() -> ! {
                 draw(&game);
             }
             Ok(Key::Char('q')) => {
-                quit();
+                break;
             }
             _ => (),  // 何もしない
         }
     }
+
+    // 終了処理
+    quit();
 }
 
 // オートプレイ
-pub fn auto(weight: GenoSeq) -> ! {
+pub fn auto(weight: GenoSeq) {
     // 自動化処理
     let _ = thread::spawn(move || {
         let mut game = Game::new();
@@ -133,6 +138,7 @@ pub fn auto(weight: GenoSeq) -> ! {
             if landing(&mut game).is_err() {
                 // ブロックを生成できないならゲームオーバー
                 gameover(&game);
+                break;
             }
             draw(&game);
         }
@@ -143,7 +149,10 @@ pub fn auto(weight: GenoSeq) -> ! {
     loop {
         // `q`キーで終了
         if let Ok(Key::Char('q')) = g.getch() {
-            quit();
+            break;
         }
     }
+
+    // 終了処理
+    quit();
 }
