@@ -87,7 +87,6 @@ pub fn normal() {
                 if landing(&mut game).is_err() {
                     // ブロックを生成できないならゲームオーバー
                     gameover(&game);
-                    quit();
                     break;
                 }
                 draw(&game);
@@ -111,12 +110,14 @@ pub fn normal() {
                 draw(&game);
             }
             Ok(Key::Char('q')) => {
-                quit();
                 break;
             }
             _ => (),  // 何もしない
         }
     }
+
+    // 終了処理
+    quit();
 }
 
 // オートプレイ
@@ -148,8 +149,10 @@ pub fn auto(weight: GenoSeq) {
     loop {
         // `q`キーで終了
         if let Ok(Key::Char('q')) = g.getch() {
-            quit();
             break;
         }
     }
+
+    // 終了処理
+    quit();
 }
