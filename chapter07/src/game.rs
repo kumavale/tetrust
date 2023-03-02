@@ -272,15 +272,14 @@ pub fn spawn_block(game: &mut Game) -> Result<(), ()> {
 }
 
 // ゲームオーバー処理
-pub fn gameover(game: &Game) -> ! {
+pub fn gameover(game: &Game) {
     draw(game);
     println!("GAMEOVER");
-    quit();
+    println!("press `q` key to exit");
 }
 
 // 終了処理
-pub fn quit() -> ! {
+pub fn quit() {
     // カーソルを再表示
     println!("\x1b[?25h");
-    std::process::exit(0);
 }
