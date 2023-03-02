@@ -2,7 +2,6 @@ use std::ops::Index;
 use std::thread;
 use crate::game::*;
 use crate::ai::eval;
-use getch_rs::{Getch, Key};
 use rand::{
     distributions::{Distribution, Standard},
     seq::SliceRandom,
@@ -64,53 +63,42 @@ impl Distribution<Individual> for Standard {
 }
 
 // 学習
-pub fn learning() -> ! {
-    let _ = thread::spawn(|| {
-        // 世代を初期生成
-        let mut inds = rand::random::<[Individual; POPULATION]>();
-        for gen in 1..=GENERATION_MAX {
-            println!("{gen}世代目:");
-            thread::scope(|s| {
-                for (i, ind) in inds.iter_mut().enumerate() {
-                    // 新しいスレッドを起動
-                    s.spawn(move || {
-                        let mut game = Game::new();
-                        // nライン消したら終了
-                        while game.line < LINE_COUNT_MAX {
-                            // 指定した遺伝子で評価後のエリート個体を取得
-                            let elite = eval(&game, &ind.geno);
-                            game = elite;
-                            // エリート個体のブロックを落下
-                            if landing(&mut game).is_err() {
-                                break;
-                            }
+pub fn learning() {
+    // 世代を初期生成
+    let mut inds = rand::random::<[Individual; POPULATION]>();
+    for gen in 1..=GENERATION_MAX {
+        println!("{gen}世代目:");
+        thread::scope(|s| {
+            for (i, ind) in inds.iter_mut().enumerate() {
+                // 新しいスレッドを起動
+                s.spawn(move || {
+                    let mut game = Game::new();
+                    // nライン消したら終了
+                    while game.line < LINE_COUNT_MAX {
+                        // 指定した遺伝子で評価後のエリート個体を取得
+                        let elite = eval(&game, &ind.geno);
+                        game = elite;
+                        // エリート個体のブロックを落下
+                        if landing(&mut game).is_err() {
+                            break;
                         }
-                        // 個体の最終スコアを記録
-                        ind.score = game.score;
-                        println!("{i}: {:?} => {}", ind.geno, game.score);
-                    });
-                }
-            });
-            // 次世代の生成
-            let next_genos = gen_next_generation(&inds);
-            // 世代交代
-            inds.iter_mut()
-                .map(|i| &mut i.geno)
-                .zip(next_genos)
-                .for_each(|(now, next)| *now = next);
-        }
-        // 学習終了
-        quit();
-    });
-
-    // キー入力処理
-    let g = Getch::new();
-    loop {
-        // `q`キーで終了
-        if let Ok(Key::Char('q')) = g.getch() {
-            quit();
-        }
+                    }
+                    // 個体の最終スコアを記録
+                    ind.score = game.score;
+                    println!("{i}: {:?} => {}", ind.geno, game.score);
+                });
+            }
+        });
+        // 次世代の生成
+        let next_genos = gen_next_generation(&inds);
+        // 世代交代
+        inds.iter_mut()
+            .map(|i| &mut i.geno)
+            .zip(next_genos)
+            .for_each(|(now, next)| *now = next);
     }
+    // 学習終了
+    quit();
 }
 
 // 次世代を生成
