@@ -2,7 +2,6 @@ use bevy::prelude::Resource;
 
 use super::block::{
     block_kind, block_kind::WALL as W, gen_block_7, BlockColor, BlockKind, BlockShape, BLOCKS,
-    COLOR_TABLE,
 };
 use std::collections::VecDeque;
 
@@ -103,76 +102,6 @@ pub fn ghost_pos(field: &Field, pos: &Position, block: &BlockShape) -> Position 
         ghost_pos.y += 1;
     }
     ghost_pos
-}
-
-// フィールドを描画する
-#[allow(clippy::needless_range_loop)]
-pub fn draw(
-    Game {
-        field,
-        pos,
-        block,
-        hold,
-        holded: _,
-        next,
-        next_buf: _,
-        score,
-        ..
-    }: &Game,
-) {
-    // 描画用フィールドの生成
-    let mut field_buf = *field;
-    // 描画用フィールドにゴーストブロックを書き込む
-    let ghost_pos = ghost_pos(field, pos, block);
-    for y in 0..4 {
-        for x in 0..4 {
-            if block[y][x] != block_kind::NONE {
-                field_buf[y + ghost_pos.y][x + ghost_pos.x] = block_kind::GHOST;
-            }
-        }
-    }
-    // 描画用フィールドにブロックの情報を書き込む
-    for y in 0..4 {
-        for x in 0..4 {
-            if block[y][x] != block_kind::NONE {
-                field_buf[y + pos.y][x + pos.x] = block[y][x];
-            }
-        }
-    }
-    // ホールドを描画
-    println!("\x1b[2;28HHOLD"); // カーソルをホールド位置に移動
-    if let Some(hold) = hold {
-        for y in 0..4 {
-            print!("\x1b[{};28H", y + 3); // カーソルを移動
-            for x in 0..4 {
-                print!("{}", COLOR_TABLE[hold[y][x]]);
-            }
-            println!();
-        }
-    }
-    // ネクストを描画(3つ)
-    println!("\x1b[8;28HNEXT"); // カーソルをネクスト位置に移動
-    for (i, next) in next.iter().take(NEXT_LENGTH).enumerate() {
-        for y in 0..4 {
-            print!("\x1b[{};28H", i * 4 + y + 9); // カーソルを移動
-            for x in 0..4 {
-                print!("{}", COLOR_TABLE[next[y][x]]);
-            }
-            println!();
-        }
-    }
-    // スコアを描画
-    println!("\x1b[22;28H{}", score); // カーソルをスコア位置に移動
-                                      // フィールドを描画
-    println!("\x1b[H"); // カーソルを先頭に移動
-    for y in 0..FIELD_HEIGHT - 1 {
-        for x in 1..FIELD_WIDTH - 1 {
-            print!("{}", COLOR_TABLE[field_buf[y][x]]);
-        }
-        println!();
-    }
-    // 色情報をリセット
-    println!("\x1b[0m");
 }
 
 // ブロックがフィールドに衝突する場合は`true`を返す
@@ -381,17 +310,4 @@ pub fn spawn_block(game: &mut Game) -> Result<(), ()> {
     } else {
         Ok(())
     }
-}
-
-// ゲームオーバー処理
-pub fn gameover(game: &Game) {
-    // draw(game);
-    println!("GAMEOVER");
-    println!("press `q` key to exit");
-}
-
-// 終了処理
-pub fn quit() {
-    // カーソルを再表示
-    println!("\x1b[?25h");
 }

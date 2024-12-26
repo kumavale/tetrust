@@ -172,7 +172,11 @@ fn draw(mut commands: Commands, game: Res<Game>, query: Query<Entity, With<Sprit
     }
 }
 
-fn key_input(mut game: ResMut<Game>, input: Res<ButtonInput<KeyCode>>) {
+fn key_input(
+    mut game: ResMut<Game>,
+    input: Res<ButtonInput<KeyCode>>,
+    mut state: ResMut<NextState<GameState>>,
+) {
     if input.just_pressed(KeyCode::ArrowLeft) {
         let new_pos = Position {
             x: game.pos.x.checked_sub(1).unwrap_or(game.pos.x),
@@ -208,7 +212,7 @@ fn key_input(mut game: ResMut<Game>, input: Res<ButtonInput<KeyCode>>) {
         hard_drop(&mut game);
         if landing(&mut game).is_err() {
             // ブロックを生成できないならゲームオーバー
-            gameover(&game);
+            state.set(GameState::GameOver);
         }
     }
     if input.just_pressed(KeyCode::Space) {
@@ -242,8 +246,6 @@ fn drop(
         // ブロック落下後の処理
         if landing(&mut game).is_err() {
             // ブロックを生成できないならゲームオーバー
-            gameover(&game);
-
             state.set(GameState::GameOver);
         }
     }
